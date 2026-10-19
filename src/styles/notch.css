@@ -1,0 +1,1978 @@
+/* ── WinNotch Stylesheet (Exact Nusa Architecture) ── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --font: "Plus Jakarta Sans", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --ui: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --spring: cubic-bezier(0.34, 1.32, 0.5, 1);
+  --u: 1.3; /* Base scale for exact pixel dimensions */
+  
+  /* Dynamic song ambient colors */
+  --c1: #19b8ff;
+  --c2: #2d5bff;
+  --c3: #7b4bff;
+  --glow: linear-gradient(90deg, var(--c1), var(--c2) 55%, var(--c3));
+  --battery-p: 100%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-app-region: no-drag;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: var(--ui);
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Browser preview wallpaper (when opened outside Electron) */
+body.browser-preview {
+  background:
+    radial-gradient(70% 60% at 50% -12%, #ffffff 0%, rgba(255,255,255,.65) 30%, transparent 62%),
+    linear-gradient(180deg, #dbe7ff 0%, #b7cdff 30%, #7e95ff 62%, #4b3fd0 100%);
+  min-height: 100vh;
+}
+
+/* ── Notch Holder (Centered at Top) ── */
+.mn-holder {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) scale(var(--u));
+  transform-origin: top center;
+  z-index: 100;
+  cursor: default;
+}
+
+/* ── The Physical Notch Container (.mn) ── */
+.mn {
+  --w: 150px;
+  --h: 30px;
+  --r: 14px;
+  --e: 10px;
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  transform-origin: 50% 0;
+  background: #000;
+  border-radius: 0 0 var(--r) var(--r);
+  transition: width .62s var(--spring), height .62s var(--spring), border-radius .45s ease;
+  font-family: var(--ui);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  box-shadow: 0 14px 34px -16px rgba(0,0,0,.95);
+}
+
+/* ── Concave Inverted Ear Fillets bridging Notch to Bezel ── */
+.mn::before, .mn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: var(--e);
+  height: var(--e);
+  transition: width .45s var(--spring), height .45s var(--spring);
+  pointer-events: none;
+}
+
+.mn::before {
+  right: 100%;
+  background: radial-gradient(circle at 0 100%, transparent calc(var(--e) - .5px), #000 var(--e));
+}
+
+.mn::after {
+  left: 100%;
+  background: radial-gradient(circle at 100% 100%, transparent calc(var(--e) - .5px), #000 var(--e));
+}
+
+/* ── State Dimensions (in DP, scaled by --u: 1.3) ── */
+.mn[data-s="idle"] {
+  --w: 150px;
+  --h: 30px;
+  --r: 14px;
+  --e: 10px;
+}
+
+.mn[data-s="music"],
+.mn[data-s="pomo"],
+.mn[data-s="water"],
+.mn[data-s="shelf"],
+.mn[data-s="todo"],
+.mn[data-s="note"] {
+  --w: 420px;
+  --h: 140px;
+  --r: 32px;
+  --e: 22px;
+}
+
+.mn[data-s="lyrics"] {
+  --w: 520px;
+  --h: 140px;
+  --r: 32px;
+  --e: 22px;
+}
+
+.mn[data-s="charge"], .mn[data-s="bt"] {
+  --w: 310px;
+  --h: 60px;
+  --r: 19px;
+  --e: 13px;
+}
+
+.mn[data-s="msg"] {
+  --w: 360px;
+  --h: 60px;
+  --r: 19px;
+  --e: 13px;
+}
+
+/* ── Layer Switching with Smooth Opacity ── */
+.ly {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity .2s ease;
+  pointer-events: none;
+}
+
+.mn[data-s="idle"] .l-idle,
+.mn[data-s="music"] .l-music,
+.mn[data-s="lyrics"] .l-lyrics,
+.mn[data-s="pomo"] .l-pomo,
+.mn[data-s="water"] .l-water,
+.mn[data-s="shelf"] .l-shelf,
+.mn[data-s="todo"] .l-todo,
+.mn[data-s="note"] .l-note,
+.mn[data-s="charge"] .l-charge,
+.mn[data-s="bt"] .l-bt,
+.mn[data-s="msg"] .l-msg {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 5;
+}
+
+.mn[data-s="music"] .l-hdr,
+.mn[data-s="music"] .l-dots,
+.mn[data-s="pomo"] .l-hdr,
+.mn[data-s="pomo"] .l-dots,
+.mn[data-s="water"] .l-hdr,
+.mn[data-s="water"] .l-dots,
+.mn[data-s="shelf"] .l-dots,
+.mn[data-s="todo"] .l-dots,
+.mn[data-s="note"] .l-dots {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  transition: opacity .32s ease .2s;
+}
+
+.mn:not([data-s="music"]):not([data-s="pomo"]):not([data-s="water"]) .l-hdr {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  display: none !important;
+}
+
+.mn:not([data-s="music"]):not([data-s="pomo"]):not([data-s="water"]):not([data-s="shelf"]):not([data-s="todo"]):not([data-s="note"]) .l-dots {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  display: none !important;
+}
+
+/* Utility Positioning */
+.a { position: absolute; }
+.vc { transform: translateY(-50%); }
+.hc { transform: translateX(-50%); }
+.c { transform: translate(-50%, -50%); }
+.dim { color: rgba(255,255,255,.5); }
+.sb { font-weight: 600; }
+.b { font-weight: 700; }
+
+/* ── Expanded Header Status Bar ── */
+.l-hdr {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 32px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.l-hdr .js-time,
+.l-hdr .js-date,
+.l-hdr .js-ring {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* ── Battery Ring (PC vs Laptop) ── */
+.ring {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: conic-gradient(#33e07a 0 var(--battery-p, 100%), rgba(51,224,122,.28) 0);
+  -webkit-mask: radial-gradient(circle, transparent 4.6px, #000 5px);
+  mask: radial-gradient(circle, transparent 4.6px, #000 5px);
+  transition: background .4s ease;
+}
+
+/* ── Equalizer Waveform Bars ── */
+.bars {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  height: 14px;
+}
+
+.bars i {
+  width: 2.2px;
+  border-radius: 2px;
+  background: #fff;
+  height: 30%;
+  animation: eq .9s ease-in-out infinite alternate;
+}
+
+.bars i:nth-child(2) { animation-delay: -.3s; }
+.bars i:nth-child(3) { animation-delay: -.6s; }
+.bars i:nth-child(4) { animation-delay: -.15s; }
+.bars i:nth-child(5) { animation-delay: -.45s; }
+
+@keyframes eq {
+  to { height: 100%; }
+}
+
+.bars.paused i {
+  animation-play-state: paused;
+  height: 30% !important;
+}
+
+/* ── Dynamic Ambient Glow (Bottom of Notch) ── */
+.ambient {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 90%;
+  pointer-events: none;
+  background: var(--glow);
+  -webkit-mask: linear-gradient(to top, #000, rgba(0,0,0,.55) 30%, rgba(0,0,0,.12) 70%, transparent);
+  mask: linear-gradient(to top, #000, rgba(0,0,0,.55) 30%, rgba(0,0,0,.12) 70%, transparent);
+  transition: background .8s ease, opacity .5s ease;
+  opacity: .85;
+}
+
+/* ── Arrow & Control Buttons ── */
+.arw {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.28);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 8;
+  transition: background .2s, transform .2s var(--spring);
+}
+
+.arw:hover {
+  background: rgba(255,255,255,.4);
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.arw svg {
+  width: 9px;
+  height: 9px;
+  stroke: #fff;
+  stroke-width: 2.4;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Pagination Dots ── */
+.l-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.dots {
+  left: 210px;
+  top: 133px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  pointer-events: none;
+}
+
+.dots i {
+  width: 3.6px;
+  height: 3.6px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, .45);
+  transition: width .4s var(--spring), background .3s;
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 6px 3px;
+  margin: -6px -3px;
+  background-clip: content-box;
+}
+
+.mn[data-s="music"] .dots i:nth-child(1),
+.mn[data-s="lyrics"] .dots i:nth-child(1) {
+  width: 15px;
+  background: #fff;
+}
+
+.mn[data-s="pomo"] .dots i:nth-child(2) {
+  width: 15px;
+  background: #fff;
+}
+
+.mn[data-s="water"] .dots i:nth-child(3) {
+  width: 15px;
+  background: #fff;
+}
+
+.mn[data-s="shelf"] .dots i:nth-child(4) {
+  width: 15px;
+  background: #fff;
+}
+
+.mn[data-s="todo"] .dots i:nth-child(5) {
+  width: 15px;
+  background: #fff;
+}
+
+.mn[data-s="note"] .dots i:nth-child(6) {
+  width: 15px;
+  background: #ffb84d;
+}
+
+/* ── Album Art Artwork ── */
+.art {
+  border-radius: 10px;
+  overflow: hidden;
+  background:
+    linear-gradient(115deg, transparent 0 46%, rgba(255,255,255,.75) 46% 48%, transparent 48%),
+    radial-gradient(circle at 34% 58%, #2e7fe0 0 22%, transparent 23%),
+    radial-gradient(circle at 34% 58%, transparent 0 30%, #5aa6f2 31% 33%, transparent 34%),
+    repeating-linear-gradient(0deg, rgba(46,127,224,.18) 0 2px, transparent 2px 7px),
+    linear-gradient(160deg, #eef5ff, #cfe2fb);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  transition: background-image .5s ease;
+}
+
+/* ── Seekbar Progress ── */
+.prog {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.22);
+  overflow: hidden;
+  cursor: pointer;
+  transition: height .15s ease;
+}
+
+.prog:hover {
+  height: 5px;
+}
+
+.prog i {
+  display: block;
+  height: 100%;
+  background: #fff;
+  border-radius: 2px;
+  width: 70%;
+  transition: width .1s linear;
+}
+
+/* ── Media Controls ── */
+svg.ctl {
+  width: 17px;
+  height: 17px;
+  fill: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform .18s;
+}
+
+svg.ctl:hover {
+  transform: translate(-50%, -50%) scale(1.18);
+}
+
+svg.ctl:active {
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+.bub {
+  width: 17px;
+  height: 15px;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform .2s;
+}
+
+.bub:hover {
+  transform: translate(-50%, -50%) scale(1.18);
+}
+
+/* ── Lyrics View (.l-lyrics) ── */
+.l-lyrics .ambient {
+  background: var(--glow, linear-gradient(90deg, #2c64b8, #3a7ad0 50%, #2a5aa8));
+  height: 82%;
+  opacity: .95;
+}
+
+.lyr {
+  left: 264px;
+  width: 234px;
+  top: 16px;
+  bottom: 4px;
+  overflow: hidden;
+  -webkit-mask: linear-gradient(transparent, #000 22%, #000 78%, transparent);
+  mask: linear-gradient(transparent, #000 22%, #000 78%, transparent);
+}
+
+.lyr ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transition: transform .7s var(--spring);
+}
+
+.lyr li {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.25;
+  padding: 4.5px 0;
+  color: rgba(255,255,255,.3);
+  transform: scale(.93);
+  transform-origin: left center;
+  transition: color .5s, transform .5s;
+}
+
+.lyr li.on {
+  color: #fff;
+  transform: scale(1);
+}
+
+/* ── Charging State (.l-charge) ── */
+.pk-ring {
+  left: 35px;
+  top: 30px;
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+}
+
+.pk-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pk-ring .arc {
+  transition: stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1) .35s;
+}
+
+.mn[data-s="charge"] .l-charge .arc {
+  stroke-dashoffset: 20.7;
+}
+
+/* Single line ellipsis for song title and artist */
+.js-app, .js-track-info {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 270px;
+}
+
+.l-lyrics .js-app, .l-lyrics .js-track-info {
+  max-width: 140px;
+}
+
+/* ── Pomodoro & Water Shared Title ── */
+.ttl {
+  left: 15px;
+  top: 19px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ── Pomodoro Widget (.l-pomo) ── */
+.pring {
+  left: 80px;
+  top: 74px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(from 200deg, #ff5a6e, #ff3a3a, #ff6b5f, #ff5a6e);
+  -webkit-mask: radial-gradient(circle, transparent 25.4px, #000 25.8px);
+  mask: radial-gradient(circle, transparent 25.4px, #000 25.8px);
+  box-shadow: 0 0 18px rgba(255, 70, 70, 0.35);
+}
+
+.pglow {
+  left: 80px;
+  top: 74px;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 60, 60, 0.32), transparent 65%);
+}
+
+.pill {
+  height: 28px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 8;
+  user-select: none;
+  transition: background 0.2s, transform 0.2s var(--spring);
+}
+
+.pill:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.pill:active {
+  transform: scale(0.96);
+}
+
+.pill svg {
+  width: 13px;
+  height: 13px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Water Reminder Widget (.l-water) ── */
+.sw {
+  left: 162px;
+  top: 37px;
+  width: 34px;
+  height: 20px;
+  border-radius: 10px;
+  background: #2699ff;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 8;
+  transition: background 0.25s ease;
+}
+
+.sw.off {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.sw i {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s var(--spring);
+}
+
+.sw.off i {
+  transform: translateX(-14px);
+}
+
+.sw svg {
+  width: 9px;
+  height: 9px;
+  fill: #2699ff;
+  transition: fill 0.25s ease;
+}
+
+.sw.off svg {
+  fill: rgba(0, 0, 0, 0.45);
+}
+
+.wbar {
+  left: 44px;
+  top: 82.5px;
+  width: 152px;
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #66dbff, #2d6bff);
+  transition: width 1s cubic-bezier(0.3, 1.2, 0.5, 1) 0.15s;
+}
+
+.wbtn {
+  height: 26px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 11px 0 9px;
+  font-size: 12px;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 8;
+  user-select: none;
+  transition: background 0.2s, transform 0.2s var(--spring);
+}
+
+.wbtn:hover {
+  transform: scale(1.05);
+}
+
+.wbtn:active {
+  transform: scale(0.96);
+}
+
+.wbtn svg {
+  width: 13px;
+  height: 13px;
+}
+
+.wbar-col {
+  width: 7px;
+  border-radius: 3.5px;
+  position: absolute;
+  bottom: 0;
+}
+
+.wgrow {
+  transition: height 0.8s cubic-bezier(0.34, 1.5, 0.5, 1);
+}
+
+.chart {
+  left: 220px;
+  top: 56px;
+  width: 112px;
+  height: 50px;
+}
+
+.grid-dot {
+  position: absolute;
+  left: 0;
+  right: -6px;
+  height: 0;
+  border-top: 1.2px dotted rgba(255, 255, 255, 0.22);
+}
+
+.axl {
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Pomodoro Reset & Inline Edit ── */
+.pomo-reset-btn {
+  transition: background 0.2s, transform 0.2s var(--spring);
+}
+
+.pomo-reset-btn:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.pomo-reset-btn:active {
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+.pomo-reset-btn svg {
+  transition: transform 0.4s cubic-bezier(0.34, 1.5, 0.5, 1);
+}
+
+.pomo-inline-input {
+  width: 96px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid #ff4b55;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  font-family: inherit;
+  padding: 2px 4px;
+}
+
+/* ── Water Sub-view Dots & Dual View ── */
+.w-sub-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 15;
+  transition: width 0.3s var(--spring), height 0.3s var(--spring), background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.w-sub-dot::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+}
+
+.w-sub-dot.on {
+  width: 5.5px;
+  height: 5.5px;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+}
+
+.w-subview {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.w-subview > * {
+  pointer-events: auto;
+}
+
+/* ── Water Circular Ring Gauge View (Photo Spec) ── */
+.w-gauge-container {
+  position: absolute;
+  left: 285px;
+  top: 76px;
+  transform: translate(-50%, -50%);
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.2s var(--spring);
+}
+
+.w-gauge-container:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.w-gauge-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.w-gauge-fill {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.5, 0.5, 1);
+}
+
+.w-gauge-dot {
+  transition: cx 0.8s cubic-bezier(0.34, 1.5, 0.5, 1), cy 0.8s cubic-bezier(0.34, 1.5, 0.5, 1), opacity 0.3s ease;
+}
+
+.w-gauge-num {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-top: -2px;
+}
+
+.w-gauge-sub {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 1px;
+}
+
+.w-gauge-drop {
+  width: 9.5px;
+  height: 9.5px;
+}
+
+/* ── Water Settings Modal / Dialog ── */
+.w-settings-modal {
+  position: absolute;
+  inset: 10px 14px 10px 14px;
+  background: rgba(14, 20, 28, 0.96);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(86, 200, 255, 0.3);
+  border-radius: 18px;
+  z-index: 30;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75);
+  animation: wPop 0.22s var(--spring);
+}
+
+@keyframes wPop {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.w-modal-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.w-modal-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #56c8ff;
+}
+
+.w-modal-close {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  transition: background 0.2s;
+}
+
+.w-modal-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.w-modal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.w-modal-lbl {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.w-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.w-step-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s;
+}
+
+.w-step-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.w-reset-btn {
+  background: rgba(255, 75, 85, 0.18);
+  color: #ff6b75;
+  border: 1px solid rgba(255, 75, 85, 0.35);
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.w-reset-btn:hover {
+  background: rgba(255, 75, 85, 0.35);
+}
+
+.w-done-btn {
+  background: #2699ff;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 4px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s var(--spring);
+}
+
+.w-done-btn:hover {
+  background: #4ab2ff;
+  transform: scale(1.05);
+}
+
+/* ── 6. Shelf Widget (.l-shelf) ── */
+.zone {
+  left: 44px;
+  top: 33px;
+  width: 336px;
+  height: 90px;
+  border-radius: 16px;
+  border: 1.4px dashed rgba(255, 255, 255, .3);
+  background: rgba(255, 255, 255, .03);
+}
+
+.sh-zone {
+  left: 44px;
+  top: 33px;
+  width: 336px;
+  height: 90px;
+  transition: opacity .35s ease;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 6;
+}
+
+.sh-zone .zone {
+  left: 0;
+  top: 0;
+  transition: border-color .3s, background .3s, transform .4s var(--spring);
+}
+
+.sh-zone:hover .zone {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sh-icon .sh-arrow {
+  transition: transform .45s var(--spring);
+}
+
+.sh-t1, .sh-t2, .sh-sub {
+  transition: opacity .3s, transform .35s;
+  white-space: nowrap;
+}
+
+.sh-t2 {
+  opacity: 0;
+  transform: translate(-50%, calc(-50% + 5px));
+}
+
+.l-shelf.hover .zone {
+  border-color: rgba(255, 255, 255, .8);
+  background: rgba(255, 255, 255, .08);
+  transform: scale(1.02);
+}
+
+.l-shelf.hover .sh-arrow {
+  transform: translateY(6px);
+  animation: bob .7s ease-in-out .45s infinite alternate;
+}
+
+.l-shelf.hover .sh-t1 {
+  opacity: 0;
+  transform: translate(-50%, calc(-50% - 5px));
+}
+
+.l-shelf.hover .sh-t2 {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
+.l-shelf.hover .sh-sub {
+  opacity: 0;
+}
+
+@keyframes bob {
+  to { transform: translateY(9px); }
+}
+
+.l-shelf.has .sh-zone {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.l-shelf.has.hover .sh-zone {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.l-shelf.has .sh-zone .zone {
+  background: rgba(0, 0, 0, .72);
+}
+
+.l-shelf.has.hover .sh-zone .zone {
+  background: rgba(10, 14, 24, .82);
+}
+
+#shCv {
+  pointer-events: none !important;
+}
+
+.sh-clear {
+  left: 62px;
+  top: 19px;
+  height: 16px;
+  padding: 0 9px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .13);
+  font-size: 9.5px;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity .3s, background .2s;
+  user-select: none;
+  z-index: 8;
+}
+
+.sh-clear:hover {
+  background: rgba(255, 255, 255, .25);
+}
+
+.l-shelf.has .sh-clear {
+  opacity: .85;
+}
+
+.sh-card {
+  top: 31px;
+  width: 62px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  cursor: grab;
+  pointer-events: auto;
+  transition: transform .2s var(--spring), opacity .2s;
+  z-index: 8;
+  user-select: none;
+}
+
+.sh-card:active {
+  cursor: grabbing;
+}
+
+.sh-card:hover {
+  transform: scale(1.08);
+}
+
+.sh-card-del {
+  position: absolute;
+  top: 0;
+  right: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(20, 20, 25, 0.85);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 10px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s, transform 0.2s;
+  z-index: 9;
+}
+
+.sh-card:hover .sh-card-del {
+  opacity: 1;
+}
+
+.sh-card-del:hover {
+  background: #ff4b55;
+  border-color: #ff4b55;
+  transform: scale(1.15);
+}
+
+.sh-card.in {
+  opacity: 1;
+  animation: fall .75s cubic-bezier(.34, 1.6, .5, 1) both;
+}
+
+@keyframes fall {
+  from {
+    transform: translateY(-34px) scale(.7);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.sh-thumb {
+  width: 44px;
+  height: 44px;
+  margin-top: 6px;
+  border-radius: 9px;
+  overflow: hidden;
+  display: block;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.sh-thumb svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.t-img {
+  background: radial-gradient(circle at 72% 30%, #fff3c4 0 12%, transparent 13%), linear-gradient(180deg, #56c2ff 0 55%, #f3d38f 55% 70%, #2e9bd6 70%);
+}
+
+.t-file {
+  background: #3a4252;
+  display: grid;
+  place-items: center;
+}
+
+.sh-name {
+  margin-top: 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  max-width: 62px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.sh-size {
+  margin-top: 4px;
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, .5);
+}
+
+/* ── 7. Todo Widget (.l-todo) ── */
+.js-todo-list {
+  position: absolute;
+  left: 198px;
+  top: 24px;
+  width: 188px;
+  height: 104px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-right: 3px;
+  z-index: 8;
+}
+
+.js-todo-list::-webkit-scrollbar {
+  width: 3.5px;
+}
+
+.js-todo-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.js-todo-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+}
+
+.trow {
+  position: relative;
+  width: 100%;
+  min-height: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: rgba(40, 120, 60, .38);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 7px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, .85);
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+  transition: background 0.2s, transform 0.2s var(--spring);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.trow:hover {
+  background: rgba(40, 140, 70, .5);
+  transform: translateX(2px);
+}
+
+.trow.done {
+  background: rgba(30, 80, 45, .28);
+  color: rgba(255, 255, 255, .5);
+}
+
+.trow-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trow-text s {
+  text-decoration-thickness: 1.2px;
+}
+
+.trow:not(.done) .trow-text s {
+  text-decoration: none;
+  color: #fff;
+}
+
+.trow-edit-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(56, 211, 111, 0.7);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11.5px;
+  font-family: inherit;
+  padding: 1px 4px;
+  outline: none;
+}
+
+.trow-del, .trow-ren {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: none;
+  place-items: center;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0;
+  font-size: 11px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.l-todo.editing .trow-del,
+.l-todo.editing .trow-ren {
+  display: grid;
+}
+
+.trow-del:hover {
+  background: rgba(255, 75, 85, 0.35);
+  color: #ff6b75;
+}
+
+.trow-ren:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.chk {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2fd06b;
+  display: grid;
+  place-items: center;
+  flex: none;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.trow:not(.done) .chk {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.trow:not(.done) .chk svg {
+  display: none;
+}
+
+.chk svg {
+  width: 9px;
+  height: 9px;
+  stroke: #fff;
+  stroke-width: 2.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.todo-add-row {
+  position: relative;
+  width: 100%;
+  height: 28px;
+  min-height: 28px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(56, 211, 111, 0.5);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.todo-add-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 11.5px;
+  outline: none;
+  font-family: inherit;
+}
+
+.todo-add-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.todo-toast {
+  position: absolute;
+  left: 198px;
+  bottom: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #ffc94d;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 2px 7px;
+  border-radius: 5px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 12;
+}
+
+.todo-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Alarm Sound Visual Pulses ── */
+@keyframes alarmPulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.08); filter: brightness(1.35) drop-shadow(0 0 16px rgba(255, 75, 85, 0.8)); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+.pomo-alarm-active .pring {
+  animation: alarmPulse 0.5s ease infinite alternate;
+}
+
+.water-alarm-active .w-gauge-fill {
+  filter: drop-shadow(0 0 10px #56c8ff);
+}
+
+/* ── 8. Note Widget (.l-note) ── */
+.note-container {
+  position: absolute;
+  left: 196px;
+  top: 20px;
+  width: 186px;
+  height: 104px;
+  overflow: hidden;
+  z-index: 8;
+}
+
+.note-list-view {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.note-list {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-right: 3px;
+}
+
+.note-list::-webkit-scrollbar,
+.note-textarea::-webkit-scrollbar {
+  width: 3.5px;
+}
+
+.note-list::-webkit-scrollbar-track,
+.note-textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.note-list::-webkit-scrollbar-thumb,
+.note-textarea::-webkit-scrollbar-thumb {
+  background: rgba(255, 184, 77, 0.4);
+  border-radius: 2px;
+}
+
+.ntrow {
+  position: relative;
+  width: 100%;
+  min-height: 33px;
+  height: 33px;
+  border-radius: 9px;
+  background: rgba(180, 115, 20, 0.28);
+  border: 1px solid rgba(255, 184, 77, 0.24);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 8px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, .9);
+  cursor: grab;
+  user-select: none;
+  transition: background 0.2s, transform 0.2s var(--spring), border-color 0.2s;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.ntrow:hover {
+  background: rgba(210, 135, 25, 0.42);
+  border-color: rgba(255, 184, 77, 0.58);
+  transform: translateX(2px);
+}
+
+.ntrow:active {
+  cursor: grabbing;
+}
+
+.nt-icon {
+  width: 17px;
+  height: 17px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: #ffb84d;
+}
+
+.nt-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: #ffb84d;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nt-info {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5px;
+  min-width: 0;
+}
+
+.nt-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.nt-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.1;
+}
+
+.nt-del, .nt-ren {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: none;
+  place-items: center;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0;
+  font-size: 11px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.l-note.editing .nt-del,
+.l-note.editing .nt-ren {
+  display: grid;
+}
+
+.nt-del:hover {
+  background: rgba(255, 75, 85, 0.35);
+  color: #ff6b75;
+}
+
+.nt-ren:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.nt-edit-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 184, 77, 0.7);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  font-family: inherit;
+  padding: 1px 4px;
+  outline: none;
+}
+
+.note-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 3.5px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+}
+
+.note-empty span {
+  display: block;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.note-empty .ne-l1 {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.3;
+}
+
+.note-empty .ne-l2 {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.3;
+}
+
+.note-empty .ne-l2 b {
+  color: #ffb84d;
+  font-weight: 700;
+}
+
+.note-empty .ne-l3 {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.38);
+  line-height: 1.2;
+}
+
+.note-editor-view {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.note-editor-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.note-filename-box {
+  flex: 1;
+  min-width: 0;
+}
+
+.note-filename-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 184, 77, 0.4);
+  border-radius: 5px;
+  color: #ffb84d;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.note-filename-input:focus {
+  border-color: rgba(255, 184, 77, 0.9);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.note-editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.note-btn-back {
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.note-btn-back:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.note-btn-save {
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 4px;
+  background: #ffb84d;
+  border: 1px solid #ffa726;
+  color: #111;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.note-btn-save:hover {
+  background: #ffa726;
+  transform: scale(1.04);
+}
+
+.note-textarea {
+  flex: 1;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  color: #f2f2f2;
+  font-family: inherit;
+  font-size: 10.5px;
+  line-height: 1.35;
+  padding: 5px 6px;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.note-textarea:focus {
+  border-color: rgba(255, 184, 77, 0.6);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.note-toast {
+  position: absolute;
+  left: 198px;
+  bottom: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #ffb84d;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 2px 7px;
+  border-radius: 5px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 12;
+}
+
+.note-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── 9. Peek Ring & HUD Elements (.pk-ring, .l-bt, .l-charge) ── */
+.pk-ring {
+  left: 35px;
+  top: 30px;
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+  display: block;
+}
+
+.pk-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  display: block;
+}
+
+.pk-ring .arc {
+  transition: stroke-dashoffset 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s, stroke 0.35s ease;
+}
+
+.pk-ring.is-wired .arc {
+  display: none;
+}
+
+.pk-ring.is-wired circle:first-child {
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 3;
+}
+
+/* Peripheral / Headphones HUD */
+.l-bt {
+  user-select: none;
+}
+
+.l-bt.is-disconnected .js-bt-name {
+  color: #fca5a5;
+}
+
+.l-bt.is-disconnected .js-bt-status {
+  color: rgba(248, 113, 113, 0.75);
+}
+
+/* Charging HUD */
+.l-charge {
+  user-select: none;
+}
+
+.l-charge.is-unplugged .js-ch-title {
+  color: #fcd34d;
+}
+
+.l-charge.is-unplugged .js-ch-status {
+  color: rgba(252, 211, 77, 0.75);
+}
+
+.l-charge.is-low-battery .js-ch-title {
+  color: #ff5252;
+}
+
+.l-charge.is-low-battery .js-ch-status {
+  color: rgba(255, 82, 82, 0.85);
+}
+
+.l-charge.is-low-battery .js-ch-pct {
+  color: #ff5252;
+}
+
+/* Low Battery Alert Pulse on Notch Border */
+@keyframes lowBattGlow {
+  0% {
+    box-shadow: 0 14px 34px -16px rgba(0,0,0,.95), 0 0 0 1.5px rgba(255, 75, 85, 0.6), 0 0 22px rgba(255, 75, 85, 0.45);
+  }
+  50% {
+    box-shadow: 0 14px 34px -16px rgba(0,0,0,.95), 0 0 0 2.5px rgba(255, 75, 85, 0.95), 0 0 32px rgba(255, 75, 85, 0.75);
+  }
+  100% {
+    box-shadow: 0 14px 34px -16px rgba(0,0,0,.95), 0 0 0 1.5px rgba(255, 75, 85, 0.6), 0 0 22px rgba(255, 75, 85, 0.45);
+  }
+}
+
+.mn.low-battery-pulse {
+  animation: lowBattGlow 1.2s ease-in-out infinite;
+}
+
+/* ── 10. Browser Preview Test Bar (Only in Browser) ── */
+.browser-test-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(12, 16, 24, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 30px;
+  padding: 8px 14px;
+  display: none;
+  align-items: center;
+  gap: 7px;
+  z-index: 9999;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.6);
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 95vw;
+}
+
+body.browser-preview .browser-test-bar {
+  display: flex !important;
+}
+
+.btb-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.55);
+  margin-right: 4px;
+}
+
+.btb-btn {
+  border-radius: 12px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, filter 0.15s;
+  font-family: inherit;
+}
+
+.btb-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.2);
+}
+
+.btb-btn:active {
+  transform: scale(0.96);
+}
+
+.btb-blue {
+  background: rgba(94, 194, 255, 0.16);
+  border: 1px solid rgba(94, 194, 255, 0.45);
+  color: #5ec2ff;
+}
+
+.btb-white {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+.btb-gold {
+  background: rgba(255, 201, 77, 0.16);
+  border: 1px solid rgba(255, 201, 77, 0.45);
+  color: #ffc94d;
+}
+
+.btb-purple {
+  background: rgba(167, 139, 250, 0.16);
+  border: 1px solid rgba(167, 139, 250, 0.45);
+  color: #a78bfa;
+}
+
+.btb-green {
+  background: rgba(52, 211, 153, 0.16);
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  color: #34d399;
+}
+
+.btb-pink {
+  background: rgba(251, 113, 133, 0.16);
+  border: 1px solid rgba(251, 113, 133, 0.45);
+  color: #fb7185;
+}
+
+.btb-red {
+  background: rgba(248, 113, 113, 0.16);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  color: #f87171;
+}
+
+.btb-charge {
+  background: rgba(51, 224, 122, 0.16);
+  border: 1px solid rgba(51, 224, 122, 0.45);
+  color: #33e07a;
+}
+
+.btb-unplug {
+  background: rgba(255, 201, 77, 0.16);
+  border: 1px solid rgba(255, 201, 77, 0.45);
+  color: #ffc94d;
+}
+
+.btb-alert {
+  background: rgba(255, 75, 85, 0.18);
+  border: 1px solid rgba(255, 75, 85, 0.5);
+  color: #ff5252;
+}
+
+/* ── 11. Incoming Message HUD (.l-msg) & Privacy Toggle ── */
+.l-msg {
+  user-select: none;
+}
+
+.msg-action-btn:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #fff !important;
+  transform: scale(1.08);
+}
+
+.msg-action-btn:active {
+  transform: scale(0.94);
+}
+
+.js-msg-app-tag {
+  transition: all 0.25s ease;
+}
+
+/* Privacy Mode: When enabled, hides message content and displays dots */
+.l-msg.is-privacy-hidden .js-msg-text {
+  display: none !important;
+}
+
+.l-msg.is-privacy-hidden .js-msg-hidden-text {
+  display: inline-block !important;
+}
+
+.l-msg.is-privacy-hidden .js-eye-open {
+  display: none !important;
+}
+
+.l-msg.is-privacy-hidden .js-eye-closed {
+  display: block !important;
+}
+
+
+
